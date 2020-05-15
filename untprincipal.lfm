@@ -1191,4 +1191,20 @@ object frmPrincipal: TfrmPrincipal
       end
     end
   end
+  object opdArquivo: TOpenDialog
+    left = 160
+    top = 120
+  end
+  object opdImagem: TOpenPictureDialog
+    left = 560
+    top = 216
+  end
+  object opdJsignpdf: TOpenDialog
+    left = 560
+    top = 264
+  end
+  object opdJava: TOpenDialog
+    left = 560
+    top = 312
+  end
 end

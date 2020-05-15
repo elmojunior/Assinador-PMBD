@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  StrUtils;
+  ExtDlgs, StrUtils;
 
 type
 
@@ -36,6 +36,10 @@ type
     lblArquivo: TLabel;
     lblSenha: TLabel;
     memTexto: TMemo;
+    opdArquivo: TOpenDialog;
+    opdJsignpdf: TOpenDialog;
+    opdJava: TOpenDialog;
+    opdImagem: TOpenPictureDialog;
     pnlCabecalho: TPanel;
     pnlOpcoes: TPanel;
     pnlMaisOpcoes: TPanel;
@@ -310,7 +314,7 @@ end;
 
 procedure TfrmPrincipal.btnArquivoSelecionarClick(Sender: TObject);
 begin
-  // TODO abre uma caixa de diálogo para selecionar o arquivo a ser assinado.
+  if opdArquivo.Execute then edtArquivo.Text:= opdArquivo.Filename;
 end;
 
 procedure TfrmPrincipal.btnAssinarClick(Sender: TObject);
@@ -320,17 +324,17 @@ end;
 
 procedure TfrmPrincipal.btnImagemSelecionar1Click(Sender: TObject);
 begin
-  // TODO abre uma caixa de diálogo para selecionar a imagem do carimbo.
+  if opdImagem.Execute then edtImagem.Text:= opdArquivo.Filename;
 end;
 
 procedure TfrmPrincipal.btnJavaSelecionarClick(Sender: TObject);
 begin
-  // TODO abre uma caixa de diálogo para selecionar o executável do Java.
+  if opdJava.Execute then edtJava.Text:= opdArquivo.Filename;
 end;
 
 procedure TfrmPrincipal.btnJsignpdfSelecionarClick(Sender: TObject);
 begin
-  // TODO abre uma caixa de diálogo para selecionar o JsignPDF.jar.
+  if opdJsignpdf.Execute then edtJsignpdf.Text:= opdArquivo.Filename;
 end;
 
 procedure TfrmPrincipal.btnSalvarOpcoesClick(Sender: TObject);
