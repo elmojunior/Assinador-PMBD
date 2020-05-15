@@ -309,7 +309,10 @@ end;
 
 procedure TfrmPrincipal.tgbExibirChange(Sender: TObject);
 begin
-  // TODO caso esteja marcado, exibe a senha em texto puro.
+  case tgbExibirSenha.Checked of
+    true : edtSenha.EchoMode:= emNormal;
+    false: edtSenha.PasswordChar:= '*';
+  end;
 end;
 
 procedure TfrmPrincipal.btnArquivoSelecionarClick(Sender: TObject);
