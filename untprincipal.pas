@@ -78,17 +78,12 @@ implementation
 
 procedure DefinirVariaveisGlobais;
 begin
-  ArquivoDeConfiguracaoNome  := 'AssinadorDigital.txt';
-
+  ArquivoDeConfiguracaoNome  := 'AssinadorPMBD.txt';
   // O arquivo de configuração fica no mesmo local do executável da aplicação
   ArquivoDeConfiguracaoCaminho:= ExtractFilePath(Application.ExeName);
   ArquivoDeConfiguracaoCaminhoCompleto:= ArquivoDeConfiguracaoCaminho +
                                          ArquivoDeConfiguracaoNome;
-
-  if FileExists(ArquivoDeConfiguracaoCaminhoCompleto) then
-  begin
-    AssignFile(ArquivoDeConfiguracao,ArquivoDeConfiguracaoCaminhoCompleto);
-  end;
+  AssignFile(ArquivoDeConfiguracao,ArquivoDeConfiguracaoCaminhoCompleto);
 end;
 
 function SistemaOperacional:String;
@@ -144,19 +139,19 @@ var
   Contador: Integer;
 begin
   case Opcao of
-    'JSignPDF': frmPrincipal.edtJsignpdf.Text:= Configuracao;
+    'JsignPdf': frmPrincipal.edtJsignpdf.Text:= Configuracao;
     'Java'    : frmPrincipal.edtJava.Text    := Configuracao;
     'Imagem'  : frmPrincipal.edtImagem.Text  := Configuracao;
   end;
 
-  if Opcao = 'Padrao' then
+  if Opcao = 'Tipo' then
   begin
     case Configuracao of
-      'Documento': frmPrincipal.rdbDocumentos.Checked:= true;
-      'DOMe'     : frmPrincipal.rdbDome.Checked     := true;
+      'Documentos': frmPrincipal.rdbDocumentos.Checked:= true;
+      'DOMe'      : frmPrincipal.rdbDome.Checked      := true;
     end;
   end
-  else if Opcao = 'Posicao' then
+  else if Opcao = 'Posição' then
   begin
     case Configuracao of
       'Esquerda': frmPrincipal.rdbEsquerda.Checked:= true;
@@ -183,7 +178,51 @@ end;
 
 procedure SalvarOpcoes;
 begin
-  // TODO salvar as opções do sistema em um arquivo de configuração.
+  try
+    Rewrite(ArquivoDeConfiguracao);
+
+    // Salva o tipo de documento
+    case frmPrincipal.rdbDocumentos.Checked of
+      true : WriteLn(ArquivoDeConfiguracao,'Tipo=Documentos');
+      false: WriteLn(ArquivoDeConfiguracao,'Tipo=DOMe');
+    end;
+
+    // Salva a posição da assinatura
+    if frmPrincipal.rdbEsquerda.Checked then
+    begin
+      WriteLn(ArquivoDeConfiguracao,'Posição=Esquerda');
+    end
+    else if frmPrincipal.rdbCentro.Checked then
+    begin
+      WriteLn(ArquivoDeConfiguracao,'Posição=Centro');
+    end
+    else if frmPrincipal.rdbDireita.Checked then
+    begin
+      WriteLn(ArquivoDeConfiguracao,'Posição=Direita');
+    end;
+
+    // Salva manter assinaturas
+    case frmPrincipal.ckbManterAssinaturas.Checked of
+      true : WriteLn(ArquivoDeConfiguracao,'Preservar=Sim');
+      false: WriteLn(ArquivoDeConfiguracao,'Preservar=Não');
+    end;
+
+    // Salva o texto
+    frmPrincipal.memTexto.Lines.Delimiter      := '|';
+    frmPrincipal.memTexto.Lines.StrictDelimiter:= true;
+    WriteLn(ArquivoDeConfiguracao,'Texto=' + frmPrincipal.memTexto.Lines.DelimitedText);
+
+    // Salva demais opções
+    WriteLn(ArquivoDeConfiguracao,'Imagem='   + frmPrincipal.edtImagem.Text);
+    WriteLn(ArquivoDeConfiguracao,'JsignPdf=' + frmPrincipal.edtJsignpdf.Text);
+    WriteLn(ArquivoDeConfiguracao,'Java='     + frmPrincipal.edtJava.Text);
+
+    CloseFile(ArquivoDeConfiguracao);
+    MessageDlg('Salvar Configuração','Seu arquivo de configuração foi salvo com sucesso.',mtInformation,[mbOK],0);
+  Except
+    on E: EInOutError do
+      MessageDlg('Erro salvar arquivo de configuração.',PChar(E.Message),mtError,[mbOK],0);
+  end;
 end;
 
 procedure CarregarOpcoes;
@@ -262,9 +301,6 @@ procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   DefinirVariaveisGlobais;
   CarregarOpcoes;
-  // TODO verificar de qual o sistema operacional está sendo executado.
-  // TODO configurar interface de acordo com o sistema operacional.
-  // TODO verificar se os arquivos de mais opções existem.
 end;
 
 procedure TfrmPrincipal.tgbExibirChange(Sender: TObject);
@@ -299,7 +335,7 @@ end;
 
 procedure TfrmPrincipal.btnSalvarOpcoesClick(Sender: TObject);
 begin
-  // TODO dispara o processo de salvar opções.
+  SalvarOpcoes;
 end;
 
 procedure TfrmPrincipal.edtArquivoKeyDown(Sender: TObject; var Key: Word;
