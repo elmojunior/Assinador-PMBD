@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ExtDlgs, StrUtils, FileUtil, Process;
+  ExtDlgs, StrUtils, FileUtil, Process, lclintf;
 
 type
 
@@ -299,10 +299,10 @@ begin
 end;
 
 procedure CarregarOpcoes;
-var                  
+var
   Linha           : String;
   Opcao           : String;
-  Configuracao    : String; 
+  Configuracao    : String;
   ImagemLocal     : String;
   JsingPDFLocal   : String;
   JavaLocalLinux  : String;
@@ -359,18 +359,94 @@ begin
   end;
 end;
 
-procedure AssinarArquivo;
+function MontaComandoAssinar:String;
+var
+  Java             : String;
+  JsignPDF         : String;
+  Senha            : String;
+  Texto            : String;
+  Posicao          : String;
+  Imagem           : String;
+  KeyStoreType     : String;
+  ManterAssinaturas: String;
+  Parametros       : String;
+  Arquivo          : String;
 begin
   if VerificarArquivos then
   begin
+    // Define variáveis com base nas informações dos campos de texto
+    Arquivo          := '"' + frmPrincipal.edtArquivo.Text  + '"';
+    Senha            :=       frmPrincipal.edtSenha.Text         ;
+    Texto            :=       frmPrincipal.memTexto.Caption      ;
+    Imagem           :=       frmPrincipal.edtImagem.Text        ;
+    JsignPDF         := '"' + frmPrincipal.edtJsignpdf.Text + '"';
+    Java             := '"' + frmPrincipal.edtJava.Text     + '"';
+    ManterAssinaturas:= '';
 
-    Executar('echos "Teste de Execução"',true,true);
+    // Prepara os parâmetros
+    if frmPrincipal.ckbManterAssinaturas.Checked
+                    then ManterAssinaturas:= ' --append';
+    if Senha  <> '' then Senha := ' --keystore-password "' + Senha  + '"';
 
-    // TODO elabora o comando de acordo com as opções desejadas.
-    // TODO assina o arquivo selecionado.
-    // TODO exibe um aviso se o arquivo tiver sido assinado ou não
-    // TODO caso o arquivo tenha sido assinado, pergunta se deseja abrir
+    if frmPrincipal.rdbDome.Checked then
+    begin
+      Posicao:= ' -llx 105 -lly 26 -urx 560 -ury 0'; // Posição padrão do DOMe
+      Imagem := '';                                 // Não exibe a imagem
+      Texto  := ' --l2-text "Assinado digitalmente conforme Lei nº 2.313/2013' +
+                ' e Decreto nº 5.628/2013"';        // Texto padrão do DOMe
+    end
+    else
+    begin
+      if Imagem <> '' then Imagem:= ' --render-mode GRAPHIC_AND_DESCRIPTION' +
+                                    ' --img-path "' + Imagem + '"'  ;
+      case Texto  <> '' of
+        true : Texto:= ' --l2-text "'  + Texto  + '"';
+        false: Texto:= ' --l2-text "Assinado digitalmente por ${signer}"';
+      end;
 
+      if frmPrincipal.rdbEsquerda.Checked then Posicao:= ' -llx -10 -urx 250';
+      if frmPrincipal.rdbCentro.Checked   then Posicao:= ' -llx 153 -urx 403';
+      if frmPrincipal.rdbDireita.Checked  then Posicao:= ' -llx 312 -urx 562';
+      Posicao:=                                Posicao + ' -lly 095 -ury 055';
+    end;
+
+    if SistemaOperacional = 'Linux' then
+    begin
+      Java        := Java + ' -jar'; // Adiciona parâmetro para arquivos .jar
+      KeyStoreType:= ' PKCS11';      // Define que será do tipo token
+    end
+    else if SistemaOperacional = 'Windows' then
+    begin
+      Senha       := '';            // Ignora a senha para o Windows solicitar
+      KeyStoreType:= ' WINDOWS-MY'; // Deixa o Windows selecionar o certificado
+    end;
+
+    // Define os parâmetros fixos
+    Parametros:= ' --keystore-type' + KeyStoreType                        +
+                 ' --hash-algorithm SHA256'                               +
+                 ' --visible-signature'                                   +
+                 ' --font-size 9'                                         +
+                 ' --out-suffix "_assinado"'                              +
+                 ' --page 999'                                            +
+                 ' --out-directory '                                      +
+                 '"' + ExtractFilePath(frmPrincipal.edtArquivo.Text) + '"';
+
+    // Define os parâmetros informados pelo usuário
+    Parametros:= Parametros + Posicao + Texto + Senha + Imagem +
+                 ManterAssinaturas;
+
+    // Monta a linha de comando
+    result:=  Java + ' ' + JsignPDF + ' ' + Parametros + ' ' + Arquivo;
+  end
+end;
+
+procedure AssinarArquivo;
+var
+  Resposta: String;
+begin
+  if VerificarArquivos then
+  begin
+    Resposta:= Executar(MontaComandoAssinar,false,false);
   end;
 end;
 
@@ -425,4 +501,3 @@ begin
 end;
 
 end.
-
