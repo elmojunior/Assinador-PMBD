@@ -121,41 +121,60 @@ begin
   // Verifica o Arquivo
   if frmPrincipal.edtArquivo.Text = '' then
   begin
-    MessageDlg('Aviso','Por favor, selecione um arquivo para assinar.',mtWarning,[mbOK],0);
+    MessageDlg('Aviso','Por favor, selecione um arquivo para assinar.',
+               mtWarning,[mbOK],0);
   end
   else if LowerCase(ExtractFileExt(frmPrincipal.edtArquivo.Text)) <> '.pdf' then
   begin
-    MessageDlg('Aviso','O arquivo que você selecionou não é um PDF. Por favor, selecine um arquivo com a extensão PDF.',mtWarning,[mbOK],0);
+    MessageDlg('Aviso','O arquivo que você selecionou não é um PDF. Por favor,'+
+               ' selecione um arquivo com a extensão PDF.',mtWarning,[mbOK],0);
   end
   else if not FileExists(frmPrincipal.edtArquivo.Text) then
   begin
-   MessageDlg('Aviso','O arquivo que você selecionou não exite. Por favor, selecine um arquivo existente.',mtWarning,[mbOK],0);
+   MessageDlg('Aviso','O arquivo que você selecionou não exite. Por favor, ' +
+              'selecione um arquivo existente.',mtWarning,[mbOK],0);
   end
 
   // Verifica a Imagem
-  else if not (frmPrincipal.edtImagem.Text = '') and not (FileExists(frmPrincipal.edtImagem.Text)) then
+  else if not (frmPrincipal.edtImagem.Text = '')        and not
+              (FileExists(frmPrincipal.edtImagem.Text)) then
   begin
-   MessageDlg('Aviso','A imagem que você selecionou não exite. Por favor, selecine um arquivo existente.',mtWarning,[mbOK],0);
+   MessageDlg('Aviso','A imagem que você selecionou não exite. Por favor, ' +
+              'selecione um arquivo existente.',mtWarning,[mbOK],0);
   end
-  else if not (frmPrincipal.edtImagem.Text = '') and (LowerCase(ExtractFileExt(frmPrincipal.edtImagem.Text)) <> '.png') then
+  else if not (frmPrincipal.edtImagem.Text = '') and
+              (LowerCase(ExtractFileExt(frmPrincipal.edtImagem.Text)) <> '.png')
+              then
   begin
-   MessageDlg('Aviso','A imagem que você selecionou não é válida. Por favor, selecine uma imagem PNG.',mtWarning,[mbOK],0);
+   MessageDlg('Aviso','A imagem que você selecionou não é válida. ' +
+              'Por favor, selecione uma imagem PNG.',mtWarning,[mbOK],0);
   end
 
   // Verifica o JsignPdf
   else if not FileExists(frmPrincipal.edtJsignpdf.Text) then
   begin
-   MessageDlg('Erro','O programa JsignPDF não foi encontrado em seu computador! Por favor verifique a instalção ou o caminho do JsignPDF em "Mais opções".',mtError,[mbOK],0);
+   MessageDlg('Erro','O programa JsignPDF não foi encontrado em seu '     +
+              'computador! Por favor verifique a instalção ou o caminho ' +
+              'do JsignPDF em "Mais opções".',mtError,[mbOK],0);
   end
 
   // Verifica o Java
   else if not FileExists(frmPrincipal.edtJava.Text) then
   begin
-   MessageDlg('Erro','O Java não foi encontrado em seu computador! Por favor verifique a instalção ou o caminho do Java em "Mais opções"',mtError,[mbOK],0);
+    MessageDlg('Erro','O Java não foi encontrado em seu computador! '  +
+               'Por favor verifique a instalção ou o caminho do Java ' +
+               'em "Mais opções"',mtError,[mbOK],0);
   end
 
   // Verifica se existe algum arquivo assinado
-  else if (FileExists(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text)+'_assinado.pdf')) and (MessageDlg('Alera','O arquivo "' + ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text)+'_assinado.pdf" já existe. Se você sobrescrevê-lo, irá excluir permanentemente o arquivo já existente. Deseja continuar e sobrescrevê-lo? ',mtConfirmation,[mbYes,mbNo],0) = mrNo) then
+  else if (FileExists(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text) +
+                                                '_assinado.pdf'))            and
+          (MessageDlg('Alera','O arquivo "' +
+                      ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text)  +
+                      '_assinado.pdf" já existe. Se você sobrescrevê-lo, irá ' +
+                      'excluir permanentemente o arquivo já existente. Deseja '+
+                      'continuar e sobrescrevê-lo? ',
+                      mtConfirmation,[mbYes,mbNo],0) = mrNo)                then
   begin
     Exit;
   end
@@ -321,21 +340,15 @@ end;
 
 procedure AssinarArquivo;
 begin
-  // TODO verificar se o arquivo selecionado existe.
   if VerificarArquivos then
   begin
-    ShowMessage('1');
-  end
-  else
-  begin
-    ShowMessage('0');
-  end;
-  // TODO verificar se o arquivo selecionado é um PDF.
-  // TODO verificar se os arquivos de mais opções existem.
+
   // TODO elabora o comando de acordo com as opções desejadas.
   // TODO assina o arquivo selecionado.
   // TODO exibe um aviso se o arquivo tiver sido assinado ou não
-  // TODO caso o arquivo tenha sido assinado, pergunta se deseja abrir.
+  // TODO caso o arquivo tenha sido assinado, pergunta se deseja abrir
+
+  end;
 end;
 
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
