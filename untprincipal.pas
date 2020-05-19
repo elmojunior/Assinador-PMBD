@@ -537,6 +537,8 @@ begin
     frmPrincipal.Width   := 400;
     pnlMaisOpcoes.Visible:= false;
   end;
+  frmPrincipal.BorderStyle:= Single;
+  frmPrincipal.BorderIcons:= [biMinimize,biSystemMenu];
 end;
 
 procedure TfrmPrincipal.edtSenhaKeyDown(Sender: TObject; var Key: Word;
