@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ExtDlgs, StrUtils;
+  ExtDlgs, StrUtils, FileUtil;
 
 type
 
@@ -114,27 +114,56 @@ begin
   // TODO executa um comando e retorna a resposta.
 end;
 
-function VerificarArquivos(Arquivo:String;Extensao:String):Boolean;
+function VerificarArquivos:Boolean;
 begin
   result:= false;
 
-  if (FileExists(Arquivo)) and
-     (LowerCase(ExtractFileExt(Arquivo)) = Extensao) then
+  // Verifica o Arquivo
+  if frmPrincipal.edtArquivo.Text = '' then
   begin
-    result:= true;
+    MessageDlg('Aviso','Por favor, selecione um arquivo para assinar.',mtWarning,[mbOK],0);
   end
-  else if (FileExists(Arquivo)) and
-          (LowerCase(ExtractFileExt(Arquivo)) <> Extensao) then
+  else if LowerCase(ExtractFileExt(frmPrincipal.edtArquivo.Text)) <> '.pdf' then
   begin
-    MessageDlg('Erro ao Abrir Arquivo',
-               'O arquivo ' + Arquivo  + ' não está no formato ' + Extensao +
-               '.' + sLineBreak + 'Por favor selecione um arquivo com a '   +
-               'extensão ' + Extensao + '.',mtError,[mbOK],0);
+    MessageDlg('Aviso','O arquivo que você selecionou não é um PDF. Por favor, selecine um arquivo com a extensão PDF.',mtWarning,[mbOK],0);
   end
+  else if not FileExists(frmPrincipal.edtArquivo.Text) then
+  begin
+   MessageDlg('Aviso','O arquivo que você selecionou não exite. Por favor, selecine um arquivo existente.',mtWarning,[mbOK],0);
+  end
+
+  // Verifica a Imagem
+  else if not (frmPrincipal.edtImagem.Text = '') and not (FileExists(frmPrincipal.edtImagem.Text)) then
+  begin
+   MessageDlg('Aviso','A imagem que você selecionou não exite. Por favor, selecine um arquivo existente.',mtWarning,[mbOK],0);
+  end
+  else if not (frmPrincipal.edtImagem.Text = '') and (LowerCase(ExtractFileExt(frmPrincipal.edtImagem.Text)) <> '.png') then
+  begin
+   MessageDlg('Aviso','A imagem que você selecionou não é válida. Por favor, selecine uma imagem PNG.',mtWarning,[mbOK],0);
+  end
+
+  // Verifica o JsignPdf
+  else if not FileExists(frmPrincipal.edtJsignpdf.Text) then
+  begin
+   MessageDlg('Erro','O programa JSignPDF não foi encontrado em seu computador! Por favor verifique a instalção ou o caminho do JSignPDF em "Mais opções".',mtError,[mbOK],0);
+  end
+
+  // Verifica o Java
+  else if not FileExists(frmPrincipal.edtJava.Text) then
+  begin
+   MessageDlg('Erro','O Java não foi encontrado em seu computador!',mtError,[mbOK],0);
+  end
+
+  // Verifica se existe algum arquivo assinado
+  else if (FileExists(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text)+'_assinado.pdf')) and (MessageDlg('Alera','O arquivo "' + ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text)+'_assinado.pdf" já existe. Se você sobrescrevê-lo, irá excluir permanentemente o arquivo já existente. Deseja continuar e sobrescrevê-lo? ',mtConfirmation,[mbYes,mbNo],0) = mrNo) then
+  begin
+    Exit;
+  end
+
+  // Todas as validações foram positivas
   else
   begin
-    MessageDlg('Erro ao Abrir Arquivo','O arquivo ' + Arquivo + ' não existe.',
-               mtError,[mbOK],0);
+    result:= true;
   end;
 end;
 
@@ -293,6 +322,14 @@ end;
 procedure AssinarArquivo;
 begin
   // TODO verificar se o arquivo selecionado existe.
+  if VerificarArquivos then
+  begin
+    ShowMessage('1');
+  end
+  else
+  begin
+    ShowMessage('0');
+  end;
   // TODO verificar se o arquivo selecionado é um PDF.
   // TODO verificar se os arquivos de mais opções existem.
   // TODO elabora o comando de acordo com as opções desejadas.
@@ -309,7 +346,7 @@ end;
 
 procedure TfrmPrincipal.tgbExibirChange(Sender: TObject);
 begin
-  case tgbExibirSenha.Checked of
+  case tgbExibir.Checked of
     true : edtSenha.EchoMode:= emNormal;
     false: edtSenha.PasswordChar:= '*';
   end;
@@ -322,22 +359,22 @@ end;
 
 procedure TfrmPrincipal.btnAssinarClick(Sender: TObject);
 begin
-  // TODO dispara o processo de assinar o documento.
+  AssinarArquivo;
 end;
 
 procedure TfrmPrincipal.btnImagemSelecionar1Click(Sender: TObject);
 begin
-  if opdImagem.Execute then edtImagem.Text:= opdArquivo.Filename;
+  if opdImagem.Execute then edtImagem.Text:= opdImagem.Filename;
 end;
 
 procedure TfrmPrincipal.btnJavaSelecionarClick(Sender: TObject);
 begin
-  if opdJava.Execute then edtJava.Text:= opdArquivo.Filename;
+  if opdJava.Execute then edtJava.Text:= opdJava.Filename;
 end;
 
 procedure TfrmPrincipal.btnJsignpdfSelecionarClick(Sender: TObject);
 begin
-  if opdJsignpdf.Execute then edtJsignpdf.Text:= opdArquivo.Filename;
+  if opdJsignpdf.Execute then edtJsignpdf.Text:= opdJsignpdf.Filename;
 end;
 
 procedure TfrmPrincipal.btnSalvarOpcoesClick(Sender: TObject);
