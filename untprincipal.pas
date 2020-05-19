@@ -145,13 +145,13 @@ begin
   // Verifica o JsignPdf
   else if not FileExists(frmPrincipal.edtJsignpdf.Text) then
   begin
-   MessageDlg('Erro','O programa JSignPDF não foi encontrado em seu computador! Por favor verifique a instalção ou o caminho do JSignPDF em "Mais opções".',mtError,[mbOK],0);
+   MessageDlg('Erro','O programa JsignPDF não foi encontrado em seu computador! Por favor verifique a instalção ou o caminho do JsignPDF em "Mais opções".',mtError,[mbOK],0);
   end
 
   // Verifica o Java
   else if not FileExists(frmPrincipal.edtJava.Text) then
   begin
-   MessageDlg('Erro','O Java não foi encontrado em seu computador!',mtError,[mbOK],0);
+   MessageDlg('Erro','O Java não foi encontrado em seu computador! Por favor verifique a instalção ou o caminho do Java em "Mais opções"',mtError,[mbOK],0);
   end
 
   // Verifica se existe algum arquivo assinado
