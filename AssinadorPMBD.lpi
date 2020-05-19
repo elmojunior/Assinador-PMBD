@@ -18,7 +18,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <RevisionNr Value="1"/>
+      <MajorVersionNr Value="4"/>
       <Language Value="0416"/>
       <StringTable FileDescription="Assinador Digital da Prefeitura Municipal de Bom Despacho" InternalName="Assinador PMBD"/>
     </VersionInfo>

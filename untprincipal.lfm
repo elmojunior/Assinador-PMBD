@@ -1,12 +1,12 @@
 object frmPrincipal: TfrmPrincipal
   Left = 260
-  Height = 410
+  Height = 430
   Top = 31
   Width = 800
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Assinador PMBD'
-  ClientHeight = 410
+  ClientHeight = 430
   ClientWidth = 800
   Color = clWhite
   OnCreate = FormCreate
@@ -677,13 +677,13 @@ object frmPrincipal: TfrmPrincipal
   end
   object pnlOpcoes: TPanel
     Left = 0
-    Height = 290
+    Height = 310
     Top = 120
     Width = 400
     Align = alClient
     Anchors = [akTop, akLeft, akRight]
     BevelOuter = bvNone
-    ClientHeight = 290
+    ClientHeight = 310
     ClientWidth = 400
     ParentShowHint = False
     ShowHint = True
@@ -857,16 +857,25 @@ object frmPrincipal: TfrmPrincipal
       OnClick = btnAssinarClick
       TabOrder = 8
     end
+    object lblVersao: TLabel
+      Left = 9
+      Height = 19
+      Top = 288
+      Width = 86
+      Caption = 'Versão (4.0.0)'
+      Enabled = False
+      ParentColor = False
+    end
   end
   object pnlMaisOpcoes: TPanel
     Left = 400
-    Height = 290
+    Height = 310
     Top = 120
     Width = 400
     Align = alRight
     Anchors = [akTop, akLeft, akRight, akBottom]
     BevelOuter = bvNone
-    ClientHeight = 290
+    ClientHeight = 310
     ClientWidth = 400
     ParentShowHint = False
     ShowHint = True

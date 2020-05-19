@@ -29,6 +29,7 @@ type
     gbxMaisOpcoes: TGroupBox;
     imgTitle: TImage;
     imgCabecalho: TImage;
+    lblVersao: TLabel;
     lblImagem: TLabel;
     lblJsignpdf: TLabel;
     lblJava: TLabel;
@@ -537,7 +538,7 @@ begin
     frmPrincipal.Width   := 400;
     pnlMaisOpcoes.Visible:= false;
   end;
-  frmPrincipal.BorderStyle:= Single;
+  frmPrincipal.BorderStyle:= bsSingle;
   frmPrincipal.BorderIcons:= [biMinimize,biSystemMenu];
 end;
 
