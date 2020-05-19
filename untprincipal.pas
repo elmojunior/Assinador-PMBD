@@ -57,6 +57,7 @@ type
     procedure btnJavaSelecionarClick(Sender: TObject);
     procedure btnJsignpdfSelecionarClick(Sender: TObject);
     procedure btnSalvarOpcoesClick(Sender: TObject);
+    procedure ckbMaisOpcoesChange(Sender: TObject);
     procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
       );
     procedure FormCreate(Sender: TObject);
@@ -470,6 +471,8 @@ end;
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   DefinirVariaveisGlobais;
+  frmPrincipal.Width:= 400; 
+  pnlMaisOpcoes.Visible:= false;
   CarregarOpcoes;
 end;
 
@@ -509,6 +512,20 @@ end;
 procedure TfrmPrincipal.btnSalvarOpcoesClick(Sender: TObject);
 begin
   SalvarOpcoes;
+end;
+
+procedure TfrmPrincipal.ckbMaisOpcoesChange(Sender: TObject);
+begin
+  if ckbMaisOpcoes.Checked then
+  begin
+    frmPrincipal.Width   := 800;
+    pnlMaisOpcoes.Visible:= true;
+  end
+  else
+  begin
+    frmPrincipal.Width   := 400;
+    pnlMaisOpcoes.Visible:= false;
+  end;
 end;
 
 procedure TfrmPrincipal.edtSenhaKeyDown(Sender: TObject; var Key: Word;
