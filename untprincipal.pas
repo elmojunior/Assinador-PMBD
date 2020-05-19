@@ -14,7 +14,7 @@ type
 
   TfrmPrincipal = class(TForm)
     btnArquivoSelecionar: TButton;
-    btnImagemSelecionar1: TButton;
+    btnImagemSelecionar: TButton;
     btnJsignpdfSelecionar: TButton;
     btnJavaSelecionar: TButton;
     btnSalvarOpcoes: TButton;
@@ -54,7 +54,7 @@ type
     tgbExibir: TToggleBox;
     procedure btnArquivoSelecionarClick(Sender: TObject);
     procedure btnAssinarClick(Sender: TObject);
-    procedure btnImagemSelecionar1Click(Sender: TObject);
+    procedure btnImagemSelecionarClick(Sender: TObject);
     procedure btnJavaSelecionarClick(Sender: TObject);
     procedure btnJsignpdfSelecionarClick(Sender: TObject);
     procedure btnSalvarOpcoesClick(Sender: TObject);
@@ -371,6 +371,7 @@ var
   Imagem           : String;
   KeyStoreType     : String;
   ManterAssinaturas: String;
+  Destino          : String;
   Parametros       : String;
   Arquivo          : String;
 begin
@@ -393,9 +394,9 @@ begin
     if frmPrincipal.rdbDome.Checked then
     begin
       Posicao:= ' -llx 105 -lly 26 -urx 560 -ury 0'; // Posição padrão do DOMe
-      Imagem := '';                                 // Não exibe a imagem
+      Imagem := '';                                  // Não exibe a imagem
       Texto  := ' --l2-text "Assinado digitalmente conforme Lei nº 2.313/2013' +
-                ' e Decreto nº 5.628/2013"';        // Texto padrão do DOMe
+                ' e Decreto nº 5.628/2013"';         // Texto padrão do DOMe
     end
     else
     begin
@@ -414,14 +415,16 @@ begin
 
     if SistemaOperacional = 'Linux' then
     begin
-      Java        := Java + ' -jar'; // Adiciona parâmetro para arquivos .jar
-      KeyStoreType:= ' PKCS11';      // Define que será do tipo token
+      KeyStoreType:= ' PKCS11';     // Define que será do tipo token
     end
     else if SistemaOperacional = 'Windows' then
     begin
       Senha       := '';            // Ignora a senha para o Windows solicitar
       KeyStoreType:= ' WINDOWS-MY'; // Deixa o Windows selecionar o certificado
     end;
+
+    Destino:= ExtractFilePath(frmPrincipal.edtArquivo.Text);
+    Delete(Destino,length(Destino),1); // Remove a última barra do destino
 
     // Define os parâmetros fixos
     Parametros:= ' --keystore-type' + KeyStoreType                        +
@@ -431,14 +434,14 @@ begin
                  ' --out-suffix "_assinado"'                              +
                  ' --page 999'                                            +
                  ' --out-directory '                                      +
-                 '"' + ExtractFilePath(frmPrincipal.edtArquivo.Text) + '"';
+                 '"' +  Destino + '"';
 
     // Define os parâmetros informados pelo usuário
     Parametros:= Parametros + Posicao + Texto + Senha + Imagem +
                  ManterAssinaturas;
 
     // Monta a linha de comando
-    result:=  Java + ' ' + JsignPDF + ' ' + Parametros + ' ' + Arquivo;
+    result:=  Java + ' -jar ' + JsignPDF + ' ' + Parametros + ' ' + Arquivo;
   end
 end;
 
@@ -506,7 +509,7 @@ begin
   AssinarArquivo;
 end;
 
-procedure TfrmPrincipal.btnImagemSelecionar1Click(Sender: TObject);
+procedure TfrmPrincipal.btnImagemSelecionarClick(Sender: TObject);
 begin
   if opdImagem.Execute then edtImagem.Text:= opdImagem.Filename;
 end;
