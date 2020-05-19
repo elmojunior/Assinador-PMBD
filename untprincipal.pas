@@ -424,7 +424,7 @@ begin
     end;
 
     Destino:= ExtractFilePath(frmPrincipal.edtArquivo.Text);
-    Delete(Destino,length(Destino),1);
+    Delete(Destino,length(Destino),1); // Remove a última barra do destino
 
     // Define os parâmetros fixos
     Parametros:= ' --keystore-type' + KeyStoreType                        +

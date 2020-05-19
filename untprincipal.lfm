@@ -702,6 +702,7 @@ object frmPrincipal: TfrmPrincipal
       Hint = '(Obrigatório) Arquivo PDF para ser assinado.'
       Top = 10
       Width = 209
+      AutoSize = False
       TabOrder = 0
     end
     object btnArquivoSelecionar: TButton
@@ -727,6 +728,7 @@ object frmPrincipal: TfrmPrincipal
       Hint = 'Senha PIN do Certificado Digital.'
       Top = 48
       Width = 209
+      AutoSize = False
       EchoMode = emPassword
       OnKeyDown = edtSenhaKeyDown
       PasswordChar = '*'
@@ -922,6 +924,7 @@ object frmPrincipal: TfrmPrincipal
         Top = 98
         Width = 200
         Anchors = [akTop, akLeft, akRight]
+        AutoSize = False
         TabOrder = 1
       end
       object btnImagemSelecionar: TButton
@@ -949,6 +952,7 @@ object frmPrincipal: TfrmPrincipal
         Top = 145
         Width = 200
         Anchors = [akTop, akLeft, akRight]
+        AutoSize = False
         TabOrder = 3
       end
       object btnJsignpdfSelecionar: TButton
@@ -976,6 +980,7 @@ object frmPrincipal: TfrmPrincipal
         Top = 181
         Width = 200
         Anchors = [akTop, akLeft, akRight]
+        AutoSize = False
         TabOrder = 5
       end
       object btnJavaSelecionar: TButton
