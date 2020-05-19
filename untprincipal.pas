@@ -29,6 +29,7 @@ type
     gbxMaisOpcoes: TGroupBox;
     imgTitle: TImage;
     imgCabecalho: TImage;
+    lblVersao: TLabel;
     lblImagem: TLabel;
     lblJsignpdf: TLabel;
     lblJava: TLabel;
@@ -57,6 +58,7 @@ type
     procedure btnJavaSelecionarClick(Sender: TObject);
     procedure btnJsignpdfSelecionarClick(Sender: TObject);
     procedure btnSalvarOpcoesClick(Sender: TObject);
+    procedure ckbMaisOpcoesChange(Sender: TObject);
     procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
       );
     procedure FormCreate(Sender: TObject);
@@ -470,6 +472,19 @@ end;
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   DefinirVariaveisGlobais;
+
+  frmPrincipal.Width   := 400;
+  pnlMaisOpcoes.Visible:= false;
+
+  if SistemaOperacional = 'Windows' then
+  begin
+    edtSenha.Visible := false;
+    tgbExibir.Visible:= false;
+    lblSenha.Hint    := 'Clique em "Assinar Arquivo" para digitar a senha.';    
+    lblSenha.Caption := 'No Windows, a senha será solicitada quando for '  +
+                        'assinar.';
+  end;
+
   CarregarOpcoes;
 end;
 
@@ -509,6 +524,22 @@ end;
 procedure TfrmPrincipal.btnSalvarOpcoesClick(Sender: TObject);
 begin
   SalvarOpcoes;
+end;
+
+procedure TfrmPrincipal.ckbMaisOpcoesChange(Sender: TObject);
+begin
+  if ckbMaisOpcoes.Checked then
+  begin
+    frmPrincipal.Width   := 800;
+    pnlMaisOpcoes.Visible:= true;
+  end
+  else
+  begin
+    frmPrincipal.Width   := 400;
+    pnlMaisOpcoes.Visible:= false;
+  end;
+  frmPrincipal.BorderStyle:= bsSingle;
+  frmPrincipal.BorderIcons:= [biMinimize,biSystemMenu];
 end;
 
 procedure TfrmPrincipal.edtSenhaKeyDown(Sender: TObject; var Key: Word;
