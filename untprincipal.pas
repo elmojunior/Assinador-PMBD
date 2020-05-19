@@ -471,8 +471,19 @@ end;
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   DefinirVariaveisGlobais;
-  frmPrincipal.Width:= 400; 
+
+  frmPrincipal.Width   := 400;
   pnlMaisOpcoes.Visible:= false;
+
+  if SistemaOperacional = 'Windows' then
+  begin
+    edtSenha.Visible := false;
+    tgbExibir.Visible:= false;
+    lblSenha.Hint    := 'Clique em "Assinar Arquivo" para digitar a senha.';    
+    lblSenha.Caption := 'No Windows, a senha será solicitada quando for '  +
+                        'assinar.';
+  end;
+
   CarregarOpcoes;
 end;
 
