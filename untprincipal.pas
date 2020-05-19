@@ -447,6 +447,23 @@ begin
   if VerificarArquivos then
   begin
     Resposta:= Executar(MontaComandoAssinar,false,false);
+
+    if FileExists(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text) +
+                                            '_assinado.pdf') then
+    begin
+      if MessageDlg('Arquivo Assinado',
+                    'Seu arquivo foi assinado com sucesso. Deseja abrí-lo?',
+                    mtConfirmation,[mbYes,mbNo],0) = mrYes then
+      begin
+        OpenDocument(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text) +
+                                               '_assinado.pdf');
+      end;
+    end
+    else
+    begin
+      MessageDlg('Erro ao Assinar','Ocorreu um erro ao assinar o arquivo: ' +
+                 sLineBreak + sLineBreak + Resposta,mtError,[mbOK],0);
+    end;
   end;
 end;
 
