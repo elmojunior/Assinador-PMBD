@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ExtDlgs, StrUtils, FileUtil;
+  ExtDlgs, StrUtils, FileUtil, Process;
 
 type
 
@@ -109,9 +109,30 @@ begin
   {$ENDIF}
 end;
 
-function Executar:String;
+function Executar(Comando:String;ExibirResposta:Boolean;ExibirErro:Boolean):
+String;
+var
+  Resposta: String;
 begin
-  // TODO executa um comando e retorna a resposta.
+  Resposta:= '';
+
+  if not RunCommand(Comando,Resposta) and (ExibirErro) then
+  begin
+    MessageDlg('Executar','Erro ao executar o comando:' + sLineBreak +
+               Comando, mtError,[mbOK],0);
+  end
+  else if ExibirResposta then
+  begin
+    if RunCommand(Comando,Resposta) then
+    MessageDlg('Executar','Comando executado. Resposta: ' + sLineBreak +
+               Resposta, mtInformation,[mbOK],0);
+  end
+  else
+  begin
+    RunCommand(Comando,Resposta)
+  end;
+
+  result:= Resposta;
 end;
 
 function VerificarArquivos:Boolean;
@@ -343,10 +364,12 @@ begin
   if VerificarArquivos then
   begin
 
-  // TODO elabora o comando de acordo com as opções desejadas.
-  // TODO assina o arquivo selecionado.
-  // TODO exibe um aviso se o arquivo tiver sido assinado ou não
-  // TODO caso o arquivo tenha sido assinado, pergunta se deseja abrir
+    Executar('echos "Teste de Execução"',true,true);
+
+    // TODO elabora o comando de acordo com as opções desejadas.
+    // TODO assina o arquivo selecionado.
+    // TODO exibe um aviso se o arquivo tiver sido assinado ou não
+    // TODO caso o arquivo tenha sido assinado, pergunta se deseja abrir
 
   end;
 end;
