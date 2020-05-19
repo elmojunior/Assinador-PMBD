@@ -911,7 +911,6 @@ object frmPrincipal: TfrmPrincipal
       Hint = '(Obrigatório) Arquivo PDF para ser assinado.'
       Top = 10
       Width = 209
-      OnKeyDown = edtArquivoKeyDown
       TabOrder = 0
     end
     object btnArquivoSelecionar: TButton
@@ -938,6 +937,7 @@ object frmPrincipal: TfrmPrincipal
       Top = 48
       Width = 209
       EchoMode = emPassword
+      OnKeyDown = edtSenhaKeyDown
       PasswordChar = '*'
       TabOrder = 2
     end

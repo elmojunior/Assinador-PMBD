@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ExtDlgs, StrUtils;
+  ExtDlgs, StrUtils, FileUtil, Process, lclintf;
 
 type
 
@@ -57,8 +57,8 @@ type
     procedure btnJavaSelecionarClick(Sender: TObject);
     procedure btnJsignpdfSelecionarClick(Sender: TObject);
     procedure btnSalvarOpcoesClick(Sender: TObject);
-    procedure edtArquivoKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
+      );
     procedure FormCreate(Sender: TObject);
     procedure tgbExibirChange(Sender: TObject);
   private
@@ -109,32 +109,101 @@ begin
   {$ENDIF}
 end;
 
-function Executar:String;
+function Executar(Comando:String;ExibirResposta:Boolean;ExibirErro:Boolean):
+String;
+var
+  Resposta: String;
 begin
-  // TODO executa um comando e retorna a resposta.
-end;
+  Resposta:= '';
 
-function VerificarArquivos(Arquivo:String;Extensao:String):Boolean;
-begin
-  result:= false;
-
-  if (FileExists(Arquivo)) and
-     (LowerCase(ExtractFileExt(Arquivo)) = Extensao) then
+  if not RunCommand(Comando,Resposta) and (ExibirErro) then
   begin
-    result:= true;
+    MessageDlg('Executar','Erro ao executar o comando:' + sLineBreak +
+               Comando, mtError,[mbOK],0);
   end
-  else if (FileExists(Arquivo)) and
-          (LowerCase(ExtractFileExt(Arquivo)) <> Extensao) then
+  else if ExibirResposta then
   begin
-    MessageDlg('Erro ao Abrir Arquivo',
-               'O arquivo ' + Arquivo  + ' não está no formato ' + Extensao +
-               '.' + sLineBreak + 'Por favor selecione um arquivo com a '   +
-               'extensão ' + Extensao + '.',mtError,[mbOK],0);
+    if RunCommand(Comando,Resposta) then
+    MessageDlg('Executar','Comando executado. Resposta: ' + sLineBreak +
+               Resposta, mtInformation,[mbOK],0);
   end
   else
   begin
-    MessageDlg('Erro ao Abrir Arquivo','O arquivo ' + Arquivo + ' não existe.',
-               mtError,[mbOK],0);
+    RunCommand(Comando,Resposta)
+  end;
+
+  result:= Resposta;
+end;
+
+function VerificarArquivos:Boolean;
+begin
+  result:= false;
+
+  // Verifica o Arquivo
+  if frmPrincipal.edtArquivo.Text = '' then
+  begin
+    MessageDlg('Aviso','Por favor, selecione um arquivo para assinar.',
+               mtWarning,[mbOK],0);
+  end
+  else if LowerCase(ExtractFileExt(frmPrincipal.edtArquivo.Text)) <> '.pdf' then
+  begin
+    MessageDlg('Aviso','O arquivo que você selecionou não é um PDF. Por favor,'+
+               ' selecione um arquivo com a extensão PDF.',mtWarning,[mbOK],0);
+  end
+  else if not FileExists(frmPrincipal.edtArquivo.Text) then
+  begin
+   MessageDlg('Aviso','O arquivo que você selecionou não exite. Por favor, ' +
+              'selecione um arquivo existente.',mtWarning,[mbOK],0);
+  end
+
+  // Verifica a Imagem
+  else if not (frmPrincipal.edtImagem.Text = '')        and not
+              (FileExists(frmPrincipal.edtImagem.Text)) then
+  begin
+   MessageDlg('Aviso','A imagem que você selecionou não exite. Por favor, ' +
+              'selecione um arquivo existente.',mtWarning,[mbOK],0);
+  end
+  else if not (frmPrincipal.edtImagem.Text = '') and
+              (LowerCase(ExtractFileExt(frmPrincipal.edtImagem.Text)) <> '.png')
+              then
+  begin
+   MessageDlg('Aviso','A imagem que você selecionou não é válida. ' +
+              'Por favor, selecione uma imagem PNG.',mtWarning,[mbOK],0);
+  end
+
+  // Verifica o JsignPdf
+  else if not FileExists(frmPrincipal.edtJsignpdf.Text) then
+  begin
+   MessageDlg('Erro','O programa JsignPDF não foi encontrado em seu '     +
+              'computador! Por favor verifique a instalção ou o caminho ' +
+              'do JsignPDF em "Mais opções".',mtError,[mbOK],0);
+  end
+
+  // Verifica o Java
+  else if not FileExists(frmPrincipal.edtJava.Text) then
+  begin
+    MessageDlg('Erro','O Java não foi encontrado em seu computador! '  +
+               'Por favor verifique a instalção ou o caminho do Java ' +
+               'em "Mais opções"',mtError,[mbOK],0);
+  end
+
+  // Verifica se existe algum arquivo assinado
+  else if (FileExists(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text) +
+                                                '_assinado.pdf'))            and
+          (MessageDlg('Alera','O arquivo "' +
+                      ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text)  +
+                      '_assinado.pdf" já existe. Se você sobrescrevê-lo, irá ' +
+                      'excluir permanentemente o arquivo já existente. Deseja '+
+                      'continuar e sobrescrevê-lo? ',
+                      mtConfirmation,[mbYes,mbNo],0) = mrNo)                then
+  begin
+    Exit;
+  end
+
+  // Todas as validações foram positivas
+  else
+  begin
+    result:= true;
   end;
 end;
 
@@ -230,10 +299,10 @@ begin
 end;
 
 procedure CarregarOpcoes;
-var                  
+var
   Linha           : String;
   Opcao           : String;
-  Configuracao    : String; 
+  Configuracao    : String;
   ImagemLocal     : String;
   JsingPDFLocal   : String;
   JavaLocalLinux  : String;
@@ -290,15 +359,112 @@ begin
   end;
 end;
 
-procedure AssinarArquivo;
+function MontaComandoAssinar:String;
+var
+  Java             : String;
+  JsignPDF         : String;
+  Senha            : String;
+  Texto            : String;
+  Posicao          : String;
+  Imagem           : String;
+  KeyStoreType     : String;
+  ManterAssinaturas: String;
+  Parametros       : String;
+  Arquivo          : String;
 begin
-  // TODO verificar se o arquivo selecionado existe.
-  // TODO verificar se o arquivo selecionado é um PDF.
-  // TODO verificar se os arquivos de mais opções existem.
-  // TODO elabora o comando de acordo com as opções desejadas.
-  // TODO assina o arquivo selecionado.
-  // TODO exibe um aviso se o arquivo tiver sido assinado ou não
-  // TODO caso o arquivo tenha sido assinado, pergunta se deseja abrir.
+  if VerificarArquivos then
+  begin
+    // Define variáveis com base nas informações dos campos de texto
+    Arquivo          := '"' + frmPrincipal.edtArquivo.Text  + '"';
+    Senha            :=       frmPrincipal.edtSenha.Text         ;
+    Texto            :=       frmPrincipal.memTexto.Caption      ;
+    Imagem           :=       frmPrincipal.edtImagem.Text        ;
+    JsignPDF         := '"' + frmPrincipal.edtJsignpdf.Text + '"';
+    Java             := '"' + frmPrincipal.edtJava.Text     + '"';
+    ManterAssinaturas:= '';
+
+    // Prepara os parâmetros
+    if frmPrincipal.ckbManterAssinaturas.Checked
+                    then ManterAssinaturas:= ' --append';
+    if Senha  <> '' then Senha := ' --keystore-password "' + Senha  + '"';
+
+    if frmPrincipal.rdbDome.Checked then
+    begin
+      Posicao:= ' -llx 105 -lly 26 -urx 560 -ury 0'; // Posição padrão do DOMe
+      Imagem := '';                                 // Não exibe a imagem
+      Texto  := ' --l2-text "Assinado digitalmente conforme Lei nº 2.313/2013' +
+                ' e Decreto nº 5.628/2013"';        // Texto padrão do DOMe
+    end
+    else
+    begin
+      if Imagem <> '' then Imagem:= ' --render-mode GRAPHIC_AND_DESCRIPTION' +
+                                    ' --img-path "' + Imagem + '"'  ;
+      case Texto  <> '' of
+        true : Texto:= ' --l2-text "'  + Texto  + '"';
+        false: Texto:= ' --l2-text "Assinado digitalmente por ${signer}"';
+      end;
+
+      if frmPrincipal.rdbEsquerda.Checked then Posicao:= ' -llx -10 -urx 250';
+      if frmPrincipal.rdbCentro.Checked   then Posicao:= ' -llx 153 -urx 403';
+      if frmPrincipal.rdbDireita.Checked  then Posicao:= ' -llx 312 -urx 562';
+      Posicao:=                                Posicao + ' -lly 095 -ury 055';
+    end;
+
+    if SistemaOperacional = 'Linux' then
+    begin
+      Java        := Java + ' -jar'; // Adiciona parâmetro para arquivos .jar
+      KeyStoreType:= ' PKCS11';      // Define que será do tipo token
+    end
+    else if SistemaOperacional = 'Windows' then
+    begin
+      Senha       := '';            // Ignora a senha para o Windows solicitar
+      KeyStoreType:= ' WINDOWS-MY'; // Deixa o Windows selecionar o certificado
+    end;
+
+    // Define os parâmetros fixos
+    Parametros:= ' --keystore-type' + KeyStoreType                        +
+                 ' --hash-algorithm SHA256'                               +
+                 ' --visible-signature'                                   +
+                 ' --font-size 9'                                         +
+                 ' --out-suffix "_assinado"'                              +
+                 ' --page 999'                                            +
+                 ' --out-directory '                                      +
+                 '"' + ExtractFilePath(frmPrincipal.edtArquivo.Text) + '"';
+
+    // Define os parâmetros informados pelo usuário
+    Parametros:= Parametros + Posicao + Texto + Senha + Imagem +
+                 ManterAssinaturas;
+
+    // Monta a linha de comando
+    result:=  Java + ' ' + JsignPDF + ' ' + Parametros + ' ' + Arquivo;
+  end
+end;
+
+procedure AssinarArquivo;
+var
+  Resposta: String;
+begin
+  if VerificarArquivos then
+  begin
+    Resposta:= Executar(MontaComandoAssinar,false,false);
+
+    if FileExists(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text) +
+                                            '_assinado.pdf') then
+    begin
+      if MessageDlg('Arquivo Assinado',
+                    'Seu arquivo foi assinado com sucesso. Deseja abrí-lo?',
+                    mtConfirmation,[mbYes,mbNo],0) = mrYes then
+      begin
+        OpenDocument(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text) +
+                                               '_assinado.pdf');
+      end;
+    end
+    else
+    begin
+      MessageDlg('Erro ao Assinar','Ocorreu um erro ao assinar o arquivo: ' +
+                 sLineBreak + sLineBreak + Resposta,mtError,[mbOK],0);
+    end;
+  end;
 end;
 
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
@@ -309,7 +475,10 @@ end;
 
 procedure TfrmPrincipal.tgbExibirChange(Sender: TObject);
 begin
-  // TODO caso esteja marcado, exibe a senha em texto puro.
+  case tgbExibir.Checked of
+    true : edtSenha.EchoMode:= emNormal;
+    false: edtSenha.PasswordChar:= '*';
+  end;
 end;
 
 procedure TfrmPrincipal.btnArquivoSelecionarClick(Sender: TObject);
@@ -319,22 +488,22 @@ end;
 
 procedure TfrmPrincipal.btnAssinarClick(Sender: TObject);
 begin
-  // TODO dispara o processo de assinar o documento.
+  AssinarArquivo;
 end;
 
 procedure TfrmPrincipal.btnImagemSelecionar1Click(Sender: TObject);
 begin
-  if opdImagem.Execute then edtImagem.Text:= opdArquivo.Filename;
+  if opdImagem.Execute then edtImagem.Text:= opdImagem.Filename;
 end;
 
 procedure TfrmPrincipal.btnJavaSelecionarClick(Sender: TObject);
 begin
-  if opdJava.Execute then edtJava.Text:= opdArquivo.Filename;
+  if opdJava.Execute then edtJava.Text:= opdJava.Filename;
 end;
 
 procedure TfrmPrincipal.btnJsignpdfSelecionarClick(Sender: TObject);
 begin
-  if opdJsignpdf.Execute then edtJsignpdf.Text:= opdArquivo.Filename;
+  if opdJsignpdf.Execute then edtJsignpdf.Text:= opdJsignpdf.Filename;
 end;
 
 procedure TfrmPrincipal.btnSalvarOpcoesClick(Sender: TObject);
@@ -342,11 +511,10 @@ begin
   SalvarOpcoes;
 end;
 
-procedure TfrmPrincipal.edtArquivoKeyDown(Sender: TObject; var Key: Word;
+procedure TfrmPrincipal.edtSenhaKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  // TODO dispara o processo de assinar o documento.
+  if Chr(Key) = #13 then btnAssinar.Click;
 end;
 
 end.
-
