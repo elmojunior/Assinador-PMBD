@@ -57,8 +57,8 @@ type
     procedure btnJavaSelecionarClick(Sender: TObject);
     procedure btnJsignpdfSelecionarClick(Sender: TObject);
     procedure btnSalvarOpcoesClick(Sender: TObject);
-    procedure edtArquivoKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
+      );
     procedure FormCreate(Sender: TObject);
     procedure tgbExibirChange(Sender: TObject);
   private
@@ -511,10 +511,10 @@ begin
   SalvarOpcoes;
 end;
 
-procedure TfrmPrincipal.edtArquivoKeyDown(Sender: TObject; var Key: Word;
+procedure TfrmPrincipal.edtSenhaKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  // TODO dispara o processo de assinar o documento.
+  if Chr(Key) = #13 then btnAssinar.Click;
 end;
 
 end.
