@@ -13,6 +13,7 @@ object frmPrincipal: TfrmPrincipal
   Position = poDesktopCenter
   ShowHint = True
   UseDockManager = True
+  LCLVersion = '2.0.8.0'
   Visible = True
   object pnlCabecalho: TPanel
     Left = 0
