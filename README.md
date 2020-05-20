@@ -2,6 +2,8 @@
 
 Desenvolvimento de um software para assinar arquivos no formato PDF, na Prefeitura Municipal de Bom Despacho, Minas Gerais. Trata-se de uma interface gráfica para o JsignPDF.
 
+![Imagem de Tela](https://raw.githubusercontent.com/elmojunior/Assinador-PMBD/master/Imagens/Screenshot.png)
+
 ## Dependências
 
 - **Java (versão 1.8):** utilizado para executar o JsignPDF;
