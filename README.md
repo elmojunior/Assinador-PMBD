@@ -58,7 +58,7 @@ Este sistema foi elaborado e testado nos sistemas:
 
 ## Desenvolvimento
 
-Foi utilizdo a liguagem FreePascal com a IDE Lazarus (versão 2.0.8). Para fazer o download, acesse o site oficial pelo link https://gitlab.com/elmojunior-lazarus/assinador-pmbd.
+Foi utilizdo a liguagem FreePascal com a IDE Lazarus (versão 2.0.8). Para fazer o download, acesse o site oficial pelo link https://www.lazarus-ide.org/index.php?page=downloads.
 
 ## Licença
 
