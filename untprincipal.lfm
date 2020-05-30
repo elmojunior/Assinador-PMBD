@@ -13,6 +13,7 @@ object frmPrincipal: TfrmPrincipal
   Position = poDesktopCenter
   ShowHint = True
   UseDockManager = True
+  LCLVersion = '2.0.8.0'
   Visible = True
   object pnlCabecalho: TPanel
     Left = 0
@@ -779,7 +780,7 @@ object frmPrincipal: TfrmPrincipal
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 2
-      ClientHeight = 36
+      ClientHeight = 32
       ClientWidth = 375
       Columns = 2
       TabOrder = 6
@@ -819,7 +820,7 @@ object frmPrincipal: TfrmPrincipal
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 3
-      ClientHeight = 36
+      ClientHeight = 32
       ClientWidth = 375
       Columns = 3
       TabOrder = 7
@@ -889,7 +890,7 @@ object frmPrincipal: TfrmPrincipal
       Width = 390
       Anchors = [akTop, akLeft, akRight]
       Caption = 'Mais Opções'
-      ClientHeight = 261
+      ClientHeight = 257
       ClientWidth = 388
       TabOrder = 0
       object lblTexto: TLabel
