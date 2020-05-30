@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ExtDlgs, StrUtils, FileUtil, Process, lclintf;
+  ExtDlgs, StrUtils, FileUtil, Process, lclintf, LazUTF8;
 
 type
 
@@ -285,7 +285,8 @@ begin
     // Salva o texto
     frmPrincipal.memTexto.Lines.Delimiter      := '|';
     frmPrincipal.memTexto.Lines.StrictDelimiter:= true;
-    WriteLn(ArquivoDeConfiguracao,'Texto=' + frmPrincipal.memTexto.Lines.DelimitedText);
+    WriteLn(ArquivoDeConfiguracao,'Texto=' +
+                                  frmPrincipal.memTexto.Lines.DelimitedText);
 
     // Salva demais opções
     WriteLn(ArquivoDeConfiguracao,'Imagem='   + frmPrincipal.edtImagem.Text);
@@ -293,10 +294,12 @@ begin
     WriteLn(ArquivoDeConfiguracao,'Java='     + frmPrincipal.edtJava.Text);
 
     CloseFile(ArquivoDeConfiguracao);
-    MessageDlg('Salvar Configuração','Seu arquivo de configuração foi salvo com sucesso.',mtInformation,[mbOK],0);
+    MessageDlg('Salvar Configuração','Seu arquivo de configuração foi salvo ' +
+               'com sucesso.',mtInformation,[mbOK],0);
   Except
     on E: EInOutError do
-      MessageDlg('Erro salvar arquivo de configuração.',PChar(E.Message),mtError,[mbOK],0);
+      MessageDlg('Erro salvar arquivo de configuração.',PChar(E.Message),
+                 mtError,[mbOK],0);
   end;
 end;
 
@@ -413,28 +416,18 @@ begin
       Posicao:=                                Posicao + ' -lly 095 -ury 055';
     end;
 
-    if SistemaOperacional = 'Linux' then
-    begin
-      KeyStoreType:= ' PKCS11';     // Define que será do tipo token
-    end
-    else if SistemaOperacional = 'Windows' then
-    begin
-      Senha       := '';            // Ignora a senha para o Windows solicitar
-      KeyStoreType:= ' WINDOWS-MY'; // Deixa o Windows selecionar o certificado
-    end;
-
     Destino:= ExtractFilePath(frmPrincipal.edtArquivo.Text);
     Delete(Destino,length(Destino),1); // Remove a última barra do destino
 
     // Define os parâmetros fixos
-    Parametros:= ' --keystore-type' + KeyStoreType                        +
-                 ' --hash-algorithm SHA256'                               +
-                 ' --visible-signature'                                   +
-                 ' --font-size 9'                                         +
-                 ' --out-suffix "_assinado"'                              +
-                 ' --page 999'                                            +
-                 ' --out-directory '                                      +
-                 '"' +  Destino + '"';
+    Parametros:= ' --keystore-type PKCS11'   +
+                 ' --hash-algorithm SHA256'  +
+                 ' --visible-signature'      +
+                 ' --font-size 9'            +
+                 ' --out-suffix "_assinado"' +
+                 ' --page 999'               +
+                 ' --out-directory '         +
+                 '"' +  Destino + '"'        ;
 
     // Define os parâmetros informados pelo usuário
     Parametros:= Parametros + Posicao + Texto + Senha + Imagem +
@@ -451,7 +444,7 @@ var
 begin
   if VerificarArquivos then
   begin
-    Resposta:= Executar(MontaComandoAssinar,false,false);
+    Resposta:= Executar(UTF8ToWinCP(MontaComandoAssinar),false,false);
 
     if FileExists(ExtractFileNameWithoutExt(frmPrincipal.edtArquivo.Text) +
                                             '_assinado.pdf') then
@@ -475,19 +468,8 @@ end;
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   DefinirVariaveisGlobais;
-
   frmPrincipal.Width   := 400;
   pnlMaisOpcoes.Visible:= false;
-
-  if SistemaOperacional = 'Windows' then
-  begin
-    edtSenha.Visible := false;
-    tgbExibir.Visible:= false;
-    lblSenha.Hint    := 'Clique em "Assinar Arquivo" para digitar a senha.';    
-    lblSenha.Caption := 'No Windows, a senha será solicitada quando for '  +
-                        'assinar.';
-  end;
-
   CarregarOpcoes;
 end;
 
